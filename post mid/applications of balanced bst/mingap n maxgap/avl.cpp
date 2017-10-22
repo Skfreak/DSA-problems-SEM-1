@@ -1,6 +1,7 @@
 // C++ program to delete a node from AVL Tree
 #include<iostream>
 #include<cstdlib>
+#include<climits>
 
 using namespace std;
 // An AVL tree node
@@ -10,6 +11,9 @@ struct Node
 	Node *left;
 	Node *right;
 	int height;
+	int min;
+	int max;
+	int mingap;
 
 };
 
@@ -29,6 +33,11 @@ int max(int a, int b)
 {
 	return (a > b)? a : b;
 }
+//min of two numbers
+int min(int a, int b)
+{
+	return (a < b)? a : b;
+}
 
 /* Helper function that allocates a new node with the given key and
 	NULL left and right pointers. */
@@ -39,6 +48,9 @@ Node* newNode(int key)
 	node->left = NULL;
 	node->right = NULL;
 	node->height = 1; // new node is initially added at leaf
+	node->min = key;
+	node->max = key;
+	node->mingap = INT_MAX;
 	return(node);
 }
 
@@ -48,7 +60,7 @@ Node *rightRotate(struct Node *y)
 {
 	Node *x = y->left;
 	Node *T2 = x->right;
-
+	int m1, m2;
 	// Perform rotation
 	x->right = y;
 	y->left = T2;
@@ -56,6 +68,31 @@ Node *rightRotate(struct Node *y)
 	// Update heights
 	y->height = max(height(y->left), height(y->right))+1;
 	x->height = max(height(x->left), height(x->right))+1;
+
+	//update max of x
+		x->max = y->max;
+
+	//update min of y
+	if(T2!=NULL)
+		y->min = T2->min;
+	else
+		y->min = y->key;
+
+	//update mingap of y
+	if(T2!=NULL){
+		m1 = min(T2->mingap, (y->key - T2->max));
+		y->mingap = m1;
+		m2 = min(y->right->mingap, (y->right->min - y->key));
+		y->mingap = min(m2, m1);
+
+	}
+	m2 = min(y->right->mingap, (y->right->min - y->key));
+	y->mingap = m2;
+
+	//update mingap of x
+	m1 = min(x->left->mingap, (x->key - x->left->max));
+	m2 = min(x->right->mingap, (x->right->min - x->key ));
+	x-> mingap = min(m1, m2);
 
 	// Return new root
 	return x;
@@ -67,6 +104,7 @@ Node *leftRotate(struct Node *x)
 {
 	Node *y = x->right;
 	Node *T2 = y->left;
+	int m1, m2;
 
 	// Perform rotation
 	y->left = x;
@@ -75,6 +113,31 @@ Node *leftRotate(struct Node *x)
 	// Update heights
 	x->height = max(height(x->left), height(x->right))+1;
 	y->height = max(height(y->left), height(y->right))+1;
+
+	//update max of x
+	if(T2!=NULL)
+		x->max = T2->max;
+	else
+		x->max=x->key;
+
+	//update min of y
+		y->min = x->min;
+
+	//update mingap of x
+	if(T2!=NULL){
+		m1 = min(T2->mingap, (T2->min - x->key));
+		x->mingap = m1;
+		m2 = min(x->left->mingap, (x->key - x->left->max));
+		m2 = min(m2, x->mingap);
+		x->mingap = m2;
+	}
+	m2 = min(x->left->mingap, (x->key - x->left->max));
+	x->mingap = m2;
+
+	//update mingap of y
+	m1 = min(y->left->mingap, (y->key - y->left->max));
+	m2 = min(y->right->mingap, (y->right->min - y->key ));
+	y-> mingap = min(m1, m2);
 
 	// Return new root
 	return y;
@@ -102,8 +165,26 @@ Node* insert(Node* node, int key)
 		return node;
 
 	/* 2. Update height of this ancestor node */
-	node->height = 1 + max(height(node->left),
-						height(node->right));
+	node->height = 1 + max(height(node->left),height(node->right));
+
+	//update min
+	if(node->left != NULL)
+		node->min = node->left->min;
+
+	//update max
+	if(node->right != NULL)
+		node->max = node->right->max;
+
+	//update mingap
+	if(node->left !=NULL){
+		int m1 = min(node->left->mingap, (node->key - node->left->max));
+		node->mingap = m1;
+	}
+	if(node->right !=NULL){
+		int m2 = min(node->right->mingap, (node->right->min - node->key));
+		m2 = min(m2, node->mingap);
+		node->mingap = m2;
+	}
 
 	/* 3. Get the balance factor of this ancestor
 		node to check whether this node became
@@ -225,8 +306,25 @@ Node* deleteNode(Node* root, int key)
 	return root;
 
 	// STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
-	root->height = 1 + max(height(root->left),
-						height(root->right));
+	root->height = 1 + max(height(root->left),height(root->right));
+
+	//update min
+	if(root->left != NULL)
+		root->min = root->left->min;
+
+	//update max
+	if(root->right != NULL)
+		root->max = root->right->max;
+
+	//update mingap
+	if(root->left !=NULL){
+		int m1 = min(root->left->mingap, (root->key - root->left->max));
+		root->mingap = m1;
+	}
+	if(root->right !=NULL){
+		int m2 = min(root->right->mingap, (root->right->min - root->key));
+		root->mingap = m2;
+	}
 
 	// STEP 3: GET THE BALANCE FACTOR OF THIS NODE (to
 	// check whether this node became unbalanced)
@@ -266,7 +364,8 @@ void preOrder(Node *root)
 {
 	if(root != NULL)
 	{
-		cout<<" "<<root->key;
+		cout<<"\t"<<root->key<<" ["<<root->min<<"]"<<" ["<<root->max<<"]";
+		cout<<" {"<<root->mingap<<"}";
 		preOrder(root->left);
 		preOrder(root->right);
 	}
