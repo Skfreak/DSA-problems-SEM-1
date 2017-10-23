@@ -14,7 +14,7 @@ struct Node
 	int min;
 	int max;
 	int mingap;
-
+	//int maxgap;  // if you want maxgap also
 };
 
 // A utility function to get maximum of two integers
@@ -86,9 +86,10 @@ Node *rightRotate(struct Node *y)
 		y->mingap = min(m2, m1);
 
 	}
-	m2 = min(y->right->mingap, (y->right->min - y->key));
-	y->mingap = m2;
-
+	else{
+		m2 = min(y->right->mingap, (y->right->min - y->key));
+		y->mingap = m2;
+	}
 	//update mingap of x
 	m1 = min(x->left->mingap, (x->key - x->left->max));
 	m2 = min(x->right->mingap, (x->right->min - x->key ));
@@ -131,9 +132,10 @@ Node *leftRotate(struct Node *x)
 		m2 = min(m2, x->mingap);
 		x->mingap = m2;
 	}
-	m2 = min(x->left->mingap, (x->key - x->left->max));
-	x->mingap = m2;
-
+	else{
+		m2 = min(x->left->mingap, (x->key - x->left->max));
+		x->mingap = m2;
+	}
 	//update mingap of y
 	m1 = min(y->left->mingap, (y->key - y->left->max));
 	m2 = min(y->right->mingap, (y->right->min - y->key ));
@@ -316,13 +318,15 @@ Node* deleteNode(Node* root, int key)
 	if(root->right != NULL)
 		root->max = root->right->max;
 
+		int m1, m2;
 	//update mingap
 	if(root->left !=NULL){
-		int m1 = min(root->left->mingap, (root->key - root->left->max));
+		m1 = min(root->left->mingap, (root->key - root->left->max));
 		root->mingap = m1;
 	}
 	if(root->right !=NULL){
 		int m2 = min(root->right->mingap, (root->right->min - root->key));
+		//m2 = min(m2, root->mingap);
 		root->mingap = m2;
 	}
 
