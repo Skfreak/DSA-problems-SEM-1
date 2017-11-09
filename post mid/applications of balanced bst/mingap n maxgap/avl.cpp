@@ -375,7 +375,76 @@ void preOrder(Node *root)
 	}
 }
 
-/* Drier program to test above function*/
+//minimum finding
+int minimum(int a, int b, int c){
+	if(a<b)
+		if(a<c)
+			return a;
+		else
+			return c;
+	else
+		if(b<c)
+			return b;
+		else
+			return c;
+}
+//minLeft
+int minLeft(Node * root, int x){
+
+	int cur;
+	Node * last;
+	if(root->key >= x){
+		cur = root->right->min - root->key;
+		last = root;
+		root= root->left;
+	}
+	if(root->key >=x){
+		cur = minimum(cur, root->right->mingap, last->key - root->max);
+		last = root;
+		root=root->left;
+	}
+	else{
+		root=root->right;
+	}
+	return cur;
+}
+
+//minRight
+int minRight(Node * root, int y){
+
+	int cur;
+	Node * last;
+	if(root->key <= y){
+		cur = root->key - root->left->max;
+		last = root;
+		root= root->right;
+	}
+	if(root->key <= y){
+		cur = minimum(cur, root->left->mingap, root->min - last->key);
+		last = root;
+		root=root->right;
+	}
+	else{
+		root=root->left;
+	}
+	return cur;
+}
+//mingap(x,y)
+void mingap(Node * root, int x, int y){
+
+	int min;
+	if (root->key >= x && root->key <= y)
+		{
+			if(minLeft(root,x)<minRight(root,y))
+				min = minLeft(root,x);
+			else
+				min = minRight(root,y);
+		}
+		cout<<"minimum gap in given range is : "<<min;
+}
+
+
+/* Driver program to test above function*/
 int main()
 {
 Node *root = NULL;
@@ -408,12 +477,12 @@ Node *root = NULL;
 
 	/* The AVL Tree after deletion of 10
 			1
-		/ \
-		0 9
-		/	 / \
-	-1 5	 11
-		/ \
-		2 6
+	   / \
+		0  9
+	 / 	/ \
+ -1  5	11
+ 		/ \
+	 2  6
 	*/
 
 	cout<<"\nPreorder traversal after deletion of 10 \n";
@@ -421,6 +490,9 @@ Node *root = NULL;
   cout<<"\n";
   cout<<"Minimum value in tree is : "<<minValueNode(root)->key<<"\n";
   cout<<"Maximum value in tree is : "<<maxValueNode(root)->key<<"\n";
-
+	int x,y;
+	cout<<endl<<" Enter range for mingap : ";
+	cin>>x>>y;
+	mingap(root,x,y);
 	return 0;
 }
