@@ -27,21 +27,21 @@ class Graph{
     }
 
     void addEdge(int v, int u, int w);
-    void Djkshtra(int s);
+    void Prims(int s);
 
     void printPredecessors();
 };
 
 void Graph :: addEdge(int v, int u, int w){
 
-  cout<<"\nadding edge "<<v<<" to "<<u<<" and weight : "<<w;
+  cout<<"\nadding edge "<<v<<" to "<<u<<" and weight :(undirected) "<<w;
   adj[v].push_back(make_pair(u, w));   //only this for directed graph
-  //adj[w].push_back(v)  // if it is an undirected graph
+  adj[u].push_back(make_pair(v,w));  // if it is an undirected graph
   //priority[v] = INT_MAX;
   //priority[u] = INT_MAX;
 }
 
-void Graph :: Djkshtra(int s){
+void Graph :: Prims(int s){
 
 
   priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
@@ -55,6 +55,7 @@ void Graph :: Djkshtra(int s){
     pq.push(make_pair(0, s));
     dist[s] = 0;
 
+    vector<bool> inMST(V, false);// keep track of vertices included in MST
     /* Looping till priority queue becomes empty (or all
       distances are not finalized) */
     while (!pq.empty()){
@@ -67,6 +68,7 @@ void Graph :: Djkshtra(int s){
         int u = pq.top().second;
         pq.pop();
 
+        inMST[u] = true;
         // 'i' is used to get all adjacent vertices of a vertex
         list< pair<int, int> >::iterator i;
         for (i = adj[u].begin(); i != adj[u].end(); ++i)
@@ -77,7 +79,7 @@ void Graph :: Djkshtra(int s){
             int weight = (*i).second;
 
             //  If there is shorted path to v through u.
-            if (dist[v] > weight)
+            if (inMST[v]== false && dist[v] > weight)
             {
                 // Updating distance of v
                 dist[v] = weight;
@@ -100,7 +102,7 @@ void Graph :: Djkshtra(int s){
 
 void Graph :: printPredecessors(){
   for(int i=0;i<V;i++)
-    cout<<"predecesso of "<<i<<" is "<<pie[i]<<" and distance in MST"<<distance[i]<<endl;
+    cout<<"predecesso of "<<i<<" is "<<pie[i]<<" and distance in MST : "<<distance[i]<<endl;
 }
 
 ////graph ends here
@@ -118,7 +120,7 @@ int main(){
   getchar();
   //g.BFS(0);
   cout<<endl;
-  g.Djkshtra(0);
+  g.Prims(0);
   g.printPredecessors();
   cout<<endl;
 
