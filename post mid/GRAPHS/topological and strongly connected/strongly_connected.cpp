@@ -113,12 +113,35 @@ void Graph :: strongComponents(){
     visited[i] = false;
   }
 
-  for(int i=0;i<V;i++){
-    stack<int> q ;
-    visited[topi[i]] = true;
-    
+  int s, count =0;
+  list<int>::iterator i;
+  stack<int> q ;
+  for(int j=0;j<V;j++){
 
+    if(!visited[topo[j]]){
+
+      visited[topo[j]] = true;
+      q.push(topo[j]);
+
+      while(!q.empty()){
+        //get first element
+        s = q.top();
+        //cout<<s<<" ";
+        q.pop();
+
+        // doing dfs for the given node s
+        for(i = adj[s].begin(); i != adj[s].end(); i++){
+            if (!visited[*i]){
+                visited[*i] = true;
+                q.push(*i);
+            }
+        }
+      }
+      count++;
+    }
   }
+
+  cout<<endl<<"Components in transpose : "<<count<<endl;
 
 
 
@@ -150,12 +173,10 @@ int main(){
   getchar();
   cout<<"\n Vertices in decrease time finish order are of original graph :";
   g.decFinishtimeOrder();
-
-
-  Graph gt(5);
   cout<<"\nComputing transpose of graph : \n";
-  gt = g.computeTranspose();
-
+  Graph gt = g.computeTranspose();
+  //g.strongComponents();
+  gt.strongComponents();
   cout<<endl;
 
   return 0;
