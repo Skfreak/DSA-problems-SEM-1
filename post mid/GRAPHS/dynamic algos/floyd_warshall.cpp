@@ -103,11 +103,13 @@ void APSP (int graph[][5]){
 
 
 int main(){
-  int arr[][5] =    {{0,3,MAX,MAX,1},
+  int arr[][5]  = {
+                    {0,3,MAX,MAX,1},
                     {MAX,0,MAX,MAX,4},
                     {1,MAX,0,MAX,3},
                     {MAX,1,MAX,0,8},
-                    {MAX,2,MAX,MAX,0}};
+                    {MAX,2,MAX,MAX,0}
+                  };
   APSP(arr);
   return 0;
 }
